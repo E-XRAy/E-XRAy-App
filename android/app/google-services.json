@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "106905977677",
+    "firebase_url": "https://e-xray-87d05.firebaseio.com",
+    "project_id": "e-xray-87d05",
+    "storage_bucket": "e-xray-87d05.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:106905977677:android:5c758536922639b8382d04",
+        "android_client_info": {
+          "package_name": "com.example.e_xray"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "106905977677-gdr9mk69jnr8t8mi0mrko6d5gccqo9an.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.e_xray",
+            "certificate_hash": "04a10ff19b7a926bbe8fd787a9bf7b749929f4f0"
+          }
+        },
+        {
+          "client_id": "106905977677-i017u12eeldr7cqh3o69evaqs0gmghr2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrC5JMcju3XOjVcxlLlpaqA26uTb49rlc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "106905977677-i017u12eeldr7cqh3o69evaqs0gmghr2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
