@@ -19,7 +19,7 @@ This application is used to transfer X-ray files from radiologists to doctor or 
 
 
  
-  We have  3 users  Radiologist, doctor, and patient. Each person can sign up or sign in with their login credentials.
+  We have  3 users  Radiologist, doctor, and patient. Each person can sign up or sign in with their login credentials. The user can share their files with each othre through this application. Zoom in feature is also available for better examination.
   
   
   
