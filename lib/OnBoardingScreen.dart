@@ -142,7 +142,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 width: 300.0,
                               ),
                             ),
-                            SizedBox(height: 27.0),
+                            SizedBox(height: 25.0),
                             Text(
                               'Live your life smarter\nwith us!',
                               style: kTitleStyle,
@@ -160,13 +160,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 image: AssetImage(
                                   'images/onboarding2.png',
                                 ),
-                                height: 300.0,
+                                height: 290.0,
                                 width: 300.0,
                               ),
                             ),
-                            SizedBox(height: 30.0),
+                            SizedBox(height: 20.0),
                             Text(
-                              'Get a new experience\nof imagination',
+                              'Keep Your Documents \n At Finger Tip',
                               style: kTitleStyle,
                             ),
                           ],

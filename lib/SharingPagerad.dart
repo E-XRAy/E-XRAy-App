@@ -4,28 +4,37 @@ import 'Database.dart';
 import 'FullScreenView.dart';
 
 // ignore: must_be_immutable
-class SharingPage extends StatefulWidget {
+class SharingPageRad extends StatefulWidget {
   String filename;
   String filetype;
   String phone;
   String note;
   String url;
+  String dicomUrl;
+  String radName;
+  String patName;
+  String userType;
   String email;
-  SharingPage(
+  SharingPageRad(
       {this.filename,
       this.filetype,
       this.phone,
       this.url,
       this.email,
-      this.note});
+      this.note,
+      this.dicomUrl,
+      this.patName,
+      this.radName,
+      this.userType});
   @override
-  _SharingPageState createState() => _SharingPageState();
+  _SharingPageRadState createState() => _SharingPageRadState();
 }
 
-class _SharingPageState extends State<SharingPage> {
+class _SharingPageRadState extends State<SharingPageRad> {
   final recieveridController = TextEditingController();
+  final patController = TextEditingController();
   final noteController = TextEditingController();
-
+  final radController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,7 +115,7 @@ class _SharingPageState extends State<SharingPage> {
                       )));
         },
         child: Container(
-          height: MediaQuery.of(context).size.height * 0.4,
+          height: MediaQuery.of(context).size.height * 0.3,
           width: MediaQuery.of(context).size.width * 0.9,
           decoration: BoxDecoration(
               color: Colors.white,
@@ -120,8 +129,8 @@ class _SharingPageState extends State<SharingPage> {
               child: widget.url != null
                   ? Image(
                       image: NetworkImage(widget.url),
-                      fit: BoxFit.cover,
-                      height: MediaQuery.of(context).size.height * 0.4,
+                      fit: BoxFit.fitWidth,
+                      height: MediaQuery.of(context).size.height * 0.3,
                       width: MediaQuery.of(context).size.width * 0.9,
                     )
                   : Text(widget.filename),
@@ -151,13 +160,14 @@ class _SharingPageState extends State<SharingPage> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 2),
                 child: TextFormField(
+                  initialValue:
+                      widget.note == null ? ' Add Note ' : widget.note,
                   maxLength: 100,
                   maxLines: 5,
                   controller: noteController,
                   style: TextStyle(fontSize: 20),
                   decoration: InputDecoration(
-                      hintText:
-                          widget.note == null ? ' Add Note ' : widget.note,
+                      hintText: ' Add Note ',
                       hintStyle: TextStyle(fontSize: 19),
                       border: InputBorder.none),
                 ),
@@ -165,6 +175,12 @@ class _SharingPageState extends State<SharingPage> {
             ),
           ),
         ),
+      ),
+      SizedBox(
+        height: MediaQuery.of(context).size.height * 0.03,
+      ),
+      SizedBox(
+        height: MediaQuery.of(context).size.height * 0.03,
       ),
     ];
   }
@@ -187,6 +203,7 @@ class _SharingPageState extends State<SharingPage> {
                   final recieverId = recieveridController.text.trim();
                   final content = noteController.text;
                   final phone = widget.phone;
+
                   try {
                     print(phone);
                     print(recieverId);
@@ -195,8 +212,12 @@ class _SharingPageState extends State<SharingPage> {
                           recieverId,
                           widget.filename,
                           widget.filetype,
-                          content == '' ? null : content,
-                          widget.url);
+                          content == '' ? widget.note : content,
+                          widget.url,
+                          widget.dicomUrl,
+                          widget.patName,
+                          widget.radName);
+                      print(widget.radName);
                       Navigator.pop(context);
                     }
                   } catch (e) {
@@ -219,7 +240,10 @@ class _SharingPageState extends State<SharingPage> {
                 label: Text('Share')),
           ),
         ),
-      )
+      ),
+      SizedBox(
+        height: MediaQuery.of(context).size.height * 0.05,
+      ),
     ];
   }
 }

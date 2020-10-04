@@ -30,7 +30,7 @@ class _SplashscreenState extends State<Splashscreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Timer(Duration(seconds: 5), () {
+    Timer(Duration(seconds: 3), () {
       Navigator.pop(context);
       Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
     });
@@ -122,6 +122,7 @@ class _LoginRegisterState extends State<LoginRegister> {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   // ignore: missing_return
   Future<bool> signIn(String email, String password) async {
+    //function for sign in
     try {
       AuthResult result = await firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -144,6 +145,7 @@ class _LoginRegisterState extends State<LoginRegister> {
     }
   }
 
+  //funcion for signup
   // ignore: missing_return
   Future<bool> signUp(String email, String password) async {
     if (validateAndSave()) {
@@ -161,7 +163,7 @@ class _LoginRegisterState extends State<LoginRegister> {
         final userType = selected;
 
         analytics.setUserId(phone);
-        await Database(uid: email)
+        await Database(uid: email) //for saving user details
             .saveToDatabase(name, email, phone, userType, phone);
 
         SharedPreferences sharedPreferences =
@@ -427,11 +429,13 @@ class _LoginRegisterState extends State<LoginRegister> {
             child: TextFormField(
               autofocus: false,
               validator: (val) {
-                return val.isEmpty &&
-                        val.length < 5 &&
-                        val.contains('123456789')
-                    ? 'Strong password Required'
-                    : null;
+                if (val.isEmpty &&
+                    val.length < 5 &&
+                    !val.contains('123456789')) {
+                  return 'Strong password Required';
+                } else {
+                  return null;
+                }
               },
               obscureText: true,
               controller: passwordController,
@@ -486,9 +490,11 @@ class _LoginRegisterState extends State<LoginRegister> {
             child: TextFormField(
               autofocus: false,
               validator: (val) {
-                return val.isEmpty && val.length != 10
-                    ? 'valid phoneNumber Required'
-                    : null;
+                if (val.isEmpty && val.length < 10 && val.length > 13) {
+                  return 'valid phoneNumber Required';
+                } else {
+                  return null;
+                }
               },
               controller: phoneController,
               decoration: InputDecoration(
@@ -540,7 +546,7 @@ class _LoginRegisterState extends State<LoginRegister> {
               child: FloatingActionButton.extended(
                   backgroundColor: Colors.white,
                   onPressed: moveToRegister,
-                  label: Text('Register',
+                  label: Text('Sign Up',
                       style: TextStyle(
                         color: Colors.blue,
                       ))),
@@ -586,7 +592,9 @@ class _LoginRegisterState extends State<LoginRegister> {
             child: TextFormField(
               autofocus: false,
               validator: (val) {
-                return val.isEmpty && val.length < 5 ? 'weak password' : null;
+                return val.isEmpty && val.length < 5
+                    ? 'Strong password Required'
+                    : null;
               },
               obscureText: true,
               controller: passwordController,
@@ -621,18 +629,21 @@ class _LoginRegisterState extends State<LoginRegister> {
                   setState(() {
                     loading = true;
                   });
-                  FirebaseUser user = await FirebaseAuth.instance.currentUser();
-                  final email = emailController.text.trim();
-                  final password = passwordController.text.trim();
-                  await signIn(email, password);
-                  Navigator.pop(context);
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => App(
-                                email: email,
-                                user: user,
-                              )));
+                  if (validateAndSave()) {
+                    FirebaseUser user =
+                        await FirebaseAuth.instance.currentUser();
+                    final email = emailController.text.trim();
+                    final password = passwordController.text.trim();
+                    await signIn(email, password);
+                    Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => App(
+                                  email: email,
+                                  user: user,
+                                )));
+                  }
                   setState(() {
                     loading = false;
                   });
@@ -653,7 +664,7 @@ class _LoginRegisterState extends State<LoginRegister> {
                 heroTag: '10',
                 onPressed: () async {
                   setState(() {
-                    loading = false;
+                    loading = true;
                   });
                   FirebaseUser user = await FirebaseAuth.instance.currentUser();
                   final email = emailController.text.trim();
@@ -671,7 +682,7 @@ class _LoginRegisterState extends State<LoginRegister> {
                     loading = false;
                   });
                 },
-                label: Text("Register"))),
+                label: Text("Sign Up"))),
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.2,
         )

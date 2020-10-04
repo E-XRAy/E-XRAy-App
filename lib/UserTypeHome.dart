@@ -2,14 +2,17 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_xray/CaptureImage.dart';
+import 'package:e_xray/SharingPagePat.dart';
+import 'package:e_xray/SharingPagerad.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Database.dart';
 
 import 'FullScreenView.dart';
-import 'SharingPage.dart';
+import 'SharingPagedoc.dart';
 import 'main.dart';
 import 'uploadImage.dart';
 
@@ -25,9 +28,22 @@ class UserType extends StatefulWidget {
   _UserTypeState createState() => _UserTypeState(phone: phone, user: user);
 }
 
+String userName;
+
 enum UserTypes { doctor, patient, radiologist }
 
 class _UserTypeState extends State<UserType> {
+  Future signOut() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    FirebaseUser user = await firebaseAuth.currentUser();
+    firebaseAuth.signOut();
+    if (user == null) {
+      Navigator.pop(context);
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LoginRegister()));
+    }
+  }
+
   bool loading = false;
   @override
   void initState() {
@@ -109,10 +125,10 @@ class _UserTypeState extends State<UserType> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       String email = snapshot.data["Email"];
-                      String name = snapshot.data["Name"];
+                      userName = snapshot.data["Name"];
                       String phone = snapshot.data["Phone"];
                       print(email);
-                      print(name);
+                      print(userName);
                       print(phone);
                       return Column(
                         children: [
@@ -146,11 +162,12 @@ class _UserTypeState extends State<UserType> {
                               width: MediaQuery.of(context).size.width * 0.7,
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 10),
-                                child: TextField(
+                                child: TextFormField(
+                                  initialValue: userName,
                                   autofocus: false,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      labelText: name),
+                                      labelText: 'Name'),
                                 ),
                               ),
                             ),
@@ -174,11 +191,12 @@ class _UserTypeState extends State<UserType> {
                               width: MediaQuery.of(context).size.width * 0.7,
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 10),
-                                child: TextField(
+                                child: TextFormField(
+                                  initialValue: email,
                                   autofocus: false,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      labelText: email),
+                                      labelText: 'Email'),
                                 ),
                               ),
                             ),
@@ -202,11 +220,12 @@ class _UserTypeState extends State<UserType> {
                               width: MediaQuery.of(context).size.width * 0.7,
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 10),
-                                child: TextField(
+                                child: TextFormField(
+                                  initialValue: phone,
                                   autofocus: false,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      labelText: phone),
+                                      labelText: 'Phone Number'),
                                 ),
                               ),
                             ),
@@ -215,24 +234,15 @@ class _UserTypeState extends State<UserType> {
                             height: MediaQuery.of(context).size.height * 0.1,
                           ),
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.25,
+                            width: MediaQuery.of(context).size.width * 0.3,
                             child: FloatingActionButton.extended(
                               backgroundColor: Colors.blue,
-                              label: Text('log out'),
+                              label: Text('Log Out'),
                               onPressed: () async {
-                                FirebaseAuth firebaseAuth =
-                                    FirebaseAuth.instance;
-                                FirebaseUser user =
-                                    await firebaseAuth.currentUser();
-                                firebaseAuth.signOut();
-                                if (user == null) {
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              LoginRegister()));
-                                }
+                                SharedPreferences sharedPreferences =
+                                    await SharedPreferences.getInstance();
+                                sharedPreferences.clear();
+                                signOut();
                               },
                             ),
                           )
@@ -253,61 +263,23 @@ class _UserTypeState extends State<UserType> {
       return [
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.15,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.07,
-            width: MediaQuery.of(context).size.width * 0.8,
-            decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(width: 0.1, color: Colors.black),
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black54, blurRadius: 7, spreadRadius: 0)
-                ]),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.1,
-                    width: MediaQuery.of(context).size.width * 0.6,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: TextFormField(
-                          autofocus: false,
-                          controller: searchcontrol,
-                          style: TextStyle(fontSize: 20),
-                          decoration: InputDecoration(
-                              hintText: 'Search Patient ',
-                              hintStyle: TextStyle(fontSize: 19),
-                              border: InputBorder.none),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.search,
-                    size: 30,
-                  ),
-                ],
+          child: Padding(
+            padding: const EdgeInsets.only(left: 25, top: 50),
+            child: Align(
+              child: Text(
+                'DOCTOR',
+                style: TextStyle(fontSize: 30, fontFamily: 'KellySlab'),
               ),
+              alignment: Alignment.topLeft,
             ),
           ),
-        ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.09,
         ),
         Center(
             child: StreamBuilder<UserData>(
                 stream: Database(uid: widget.user.uid).userData,
                 builder: (context, snapshot) {
                   return Container(
-                      height: MediaQuery.of(context).size.height * 0.66,
+                      height: MediaQuery.of(context).size.height * 0.78,
                       width: MediaQuery.of(context).size.width * 0.99,
                       color: Colors.transparent,
                       child: Center(
@@ -318,7 +290,14 @@ class _UserTypeState extends State<UserType> {
                                   .collection('files')
                                   .snapshots(),
                               builder: (context, snapshot) {
-                                if (snapshot.hasData && snapshot.data != null) {
+                                if (snapshot.hasData) {
+                                  if (snapshot.data.documents.length == 0) {
+                                    return Container(
+                                      child: Center(
+                                        child: Text('No Data'),
+                                      ),
+                                    );
+                                  }
                                   return ListView.builder(
                                     itemCount:
                                         snapshot.data.documents.length == null
@@ -360,13 +339,39 @@ class _UserTypeState extends State<UserType> {
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 15, bottom: 5),
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        file['filename'],
+                                                        style: TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontFamily:
+                                                                'KellySlab'),
+                                                      ),
+                                                      Text(
+                                                          'Patient Name : ${file['PatName'] == null ? '' : file['PatName']}'),
+                                                      Text(
+                                                          'Radiologist Name : ${file['RadName'] == null ? '' : file['RadName']}')
+                                                    ],
+                                                  ),
+                                                ),
                                                 SizedBox(
                                                     width:
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
                                                             0.01),
-                                                Text(file['filename']),
                                                 PopupMenuButton<String>(
                                                   icon: Icon(Icons.more_vert),
                                                   itemBuilder: (BuildContext
@@ -393,6 +398,7 @@ class _UserTypeState extends State<UserType> {
                                                                           'url'])));
                                                     } else if (selected ==
                                                         'Share') {
+                                                      print(file['RadName']);
                                                       Navigator.push(
                                                           context,
                                                           MaterialPageRoute(
@@ -407,10 +413,16 @@ class _UserTypeState extends State<UserType> {
                                                                             'content'],
                                                                         url: file[
                                                                             'url'],
+                                                                        dicomUrl:
+                                                                            file['DicomUrl'],
                                                                         email: widget
                                                                             .email,
                                                                         phone: widget
                                                                             .phone,
+                                                                        patName:
+                                                                            file['PatName'],
+                                                                        radName:
+                                                                            file['RadName'],
                                                                       )));
                                                     } else if (selected ==
                                                         'Delete') {
@@ -440,60 +452,21 @@ class _UserTypeState extends State<UserType> {
     } else if (widget.userTypes == UserTypes.patient) {
       return [
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.18,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.07,
-            width: MediaQuery.of(context).size.width * 0.8,
-            decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(width: 0.1, color: Colors.black),
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black54, blurRadius: 7, spreadRadius: 0)
-                ]),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.1,
-                    width: MediaQuery.of(context).size.width * 0.6,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: TextFormField(
-                          autofocus: false,
-                          style: TextStyle(fontSize: 20),
-                          decoration: InputDecoration(
-                              hintText: 'Search Doctor ',
-                              hintStyle: TextStyle(fontSize: 19),
-                              border: InputBorder.none),
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                      icon: Icon(
-                        Icons.search,
-                        size: 30,
-                      ),
-                      onPressed: () {})
-                ],
+          height: MediaQuery.of(context).size.height * 0.15,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 25, top: 50),
+            child: Align(
+              child: Text(
+                'PATIENT',
+                style: TextStyle(fontSize: 30, fontFamily: 'KellySlab'),
               ),
+              alignment: Alignment.topLeft,
             ),
           ),
         ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.09,
-        ),
         Center(
             child: Container(
-          height: MediaQuery.of(context).size.height * 0.66,
+          height: MediaQuery.of(context).size.height * 0.78,
           width: MediaQuery.of(context).size.width * 0.99,
           color: Colors.transparent,
           child: Center(
@@ -505,6 +478,14 @@ class _UserTypeState extends State<UserType> {
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                      if (snapshot.data.documents.length == 0) {
+                        return Container(
+                          child: Center(
+                            child: Text('No Data'),
+                          ),
+                        );
+                      }
+                      print(snapshot.data.documents.length);
                       return ListView.separated(
                         itemCount: snapshot.data.documents.length == null
                             ? 0
@@ -533,12 +514,34 @@ class _UserTypeState extends State<UserType> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 15, bottom: 5),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              file['filename'],
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: 'KellySlab'),
+                                            ),
+                                            Text(
+                                                'Patient Name : ${file['PatName'] == null ? '' : file['PatName']}'),
+                                            Text(
+                                                'Radiologist Name : ${file['RadName'] == null ? '' : file['RadName']}')
+                                          ],
+                                        ),
+                                      ),
                                       SizedBox(
                                           width: MediaQuery.of(context)
                                                   .size
                                                   .width *
                                               0.01),
-                                      Text(file['filename']),
                                       PopupMenuButton<String>(
                                         icon: Icon(Icons.more_vert),
                                         itemBuilder: (BuildContext context) =>
@@ -563,19 +566,26 @@ class _UserTypeState extends State<UserType> {
                                                           url: file['url'],
                                                         )));
                                           } else if (selected == 'Share') {
+                                            print(file['RadName']);
                                             Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        SharingPage(
+                                                        SharingPagePat(
                                                           filename:
                                                               file['filename'],
                                                           filetype:
                                                               file['filetype'],
                                                           note: file['content'],
                                                           url: file['url'],
+                                                          dicomUrl:
+                                                              file['DicomUrl'],
                                                           email: widget.email,
                                                           phone: widget.phone,
+                                                          radName:
+                                                              file['RadName'],
+                                                          patName:
+                                                              file['PatName'],
                                                         )));
                                           } else if (selected == 'Delete') {
                                             Firestore.instance
@@ -601,7 +611,11 @@ class _UserTypeState extends State<UserType> {
                         },
                       );
                     }
-                    return Container();
+                    return Container(
+                      child: Center(
+                        child: Text('No Data'),
+                      ),
+                    );
                   })),
         ))
       ];
@@ -659,10 +673,10 @@ class _UserTypeState extends State<UserType> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            '    Upload\n XRay Image',
+                            '    Upload\n Xray Image',
                             style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w700,
                                 shadows: [
                                   BoxShadow(
@@ -673,7 +687,10 @@ class _UserTypeState extends State<UserType> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 10),
-                            child: Icon(Icons.file_upload),
+                            child: Icon(
+                              Icons.file_upload,
+                              size: 30,
+                            ),
                           )
                         ],
                       ),
@@ -682,7 +699,7 @@ class _UserTypeState extends State<UserType> {
                 ),
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.09,
+                height: MediaQuery.of(context).size.height * 0.1,
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 0),
@@ -719,7 +736,7 @@ class _UserTypeState extends State<UserType> {
                               '  Scan\n  Image',
                               style: TextStyle(
                                   color: Colors.black,
-                                  fontSize: 16,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w800,
                                   shadows: [
                                     BoxShadow(
@@ -731,7 +748,10 @@ class _UserTypeState extends State<UserType> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 10),
-                            child: Icon(Icons.file_upload),
+                            child: Icon(
+                              Icons.file_upload,
+                              size: 30,
+                            ),
                           )
                         ],
                       ),
@@ -748,45 +768,48 @@ class _UserTypeState extends State<UserType> {
 
   Widget navBar() {
     return BottomAppBar(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          IconButton(
-              icon: Icon(
-                Icons.file_upload,
-                size: 30,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => UserType(
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.09,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+                icon: Icon(
+                  Icons.file_upload,
+                  size: 30,
+                  color: Colors.teal,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UserType(
+                                phone: widget.phone,
+                                user: widget.user,
+                                userTypes: widget.userTypes,
+                                email: widget.email,
+                              )));
+                }),
+            IconButton(
+                icon: Icon(
+                  Icons.filter,
+                  size: 30,
+                  color: Colors.black,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RadFiles(
                               phone: widget.phone,
                               user: widget.user,
                               userTypes: widget.userTypes,
-                              email: widget.email,
-                            )));
-              }),
-          IconButton(
-              icon: Icon(
-                Icons.filter,
-                size: 30,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => RadFiles(
-                            phone: widget.phone,
-                            user: widget.user,
-                            userTypes: widget.userTypes,
-                            email: widget.email)));
-              }),
-        ],
+                              email: widget.email)));
+                }),
+          ],
+        ),
       ),
     );
   }
@@ -802,6 +825,18 @@ class RadFiles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String radName;
+    Future signOut() async {
+      FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+      FirebaseUser user = await firebaseAuth.currentUser();
+      firebaseAuth.signOut();
+      if (user == null) {
+        Navigator.pop(context);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => LoginRegister()));
+      }
+    }
+
     Future<bool> _onPressed() {
       showDialog(
           context: context,
@@ -850,7 +885,7 @@ class RadFiles extends StatelessWidget {
               ),
               Container(
                 margin: EdgeInsets.only(top: 100),
-                height: MediaQuery.of(context).size.height * 0.66,
+                height: MediaQuery.of(context).size.height * 0.78,
                 width: MediaQuery.of(context).size.width * 0.99,
                 color: Colors.transparent,
                 child: Center(
@@ -862,105 +897,153 @@ class RadFiles extends StatelessWidget {
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
+                            if (snapshot.data.documents.length == 0) {
+                              return Container(
+                                child: Center(
+                                  child: Text('No Data'),
+                                ),
+                              );
+                            }
                             return ListView.separated(
                               itemCount: snapshot.data.documents.length == null
                                   ? 0
                                   : snapshot.data.documents.length,
                               itemBuilder: (context, index) {
-                                DocumentSnapshot file =
-                                    snapshot.data.documents[index];
-                                return GestureDetector(
-                                  onLongPress: () {},
-                                  child: Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.7,
-                                    decoration: BoxDecoration(
-                                        border:
-                                            Border.all(color: Colors.black54),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black54,
-                                            blurRadius: 5,
-                                            spreadRadius: 1,
-                                          )
-                                        ],
-                                        color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(18)),
-                                    height: MediaQuery.of(context).size.height *
-                                        0.12,
+                                if (snapshot.data.documents.length == 0) {
+                                  return Container(
                                     child: Center(
-                                      child: Center(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            SizedBox(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.01),
-                                            Text(file['filename']),
-                                            PopupMenuButton<String>(
-                                              icon: Icon(Icons.more_vert),
-                                              itemBuilder:
-                                                  (BuildContext context) =>
-                                                      <PopupMenuEntry<String>>[
-                                                PopupMenuItem<String>(
-                                                    value: 'View',
-                                                    child: Text('View')),
-                                                PopupMenuItem<String>(
-                                                    value: 'Share',
-                                                    child: Text('Share')),
-                                                PopupMenuItem<String>(
-                                                    value: 'Delete',
-                                                    child: Text('Delete'))
-                                              ],
-                                              onSelected: (selected) {
-                                                if (selected == 'View') {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              FullScreen(
-                                                                url:
-                                                                    file['url'],
-                                                              )));
-                                                } else if (selected ==
-                                                    'Share') {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              SharingPage(
-                                                                filename: file[
-                                                                    'filename'],
-                                                                filetype: file[
-                                                                    'filetype'],
-                                                                note: file[
-                                                                    'content'],
-                                                                url:
-                                                                    file['url'],
-                                                                email: email,
-                                                                phone: phone,
-                                                              )));
-                                                } else if (selected ==
-                                                    'Delete') {
-                                                  Firestore.instance
-                                                      .collection('Files')
-                                                      .document(email)
-                                                      .collection('files')
-                                                      .document(file.documentID)
-                                                      .delete();
-                                                }
-                                              },
+                                      child: Text('No Data'),
+                                    ),
+                                  );
+                                } else {
+                                  DocumentSnapshot file =
+                                      snapshot.data.documents[index];
+                                  return GestureDetector(
+                                    onLongPress: () {},
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.7,
+                                      decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Colors.black54),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black54,
+                                              blurRadius: 5,
+                                              spreadRadius: 1,
                                             )
                                           ],
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(18)),
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.12,
+                                      child: Center(
+                                        child: Center(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 15, bottom: 5),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      file['filename'],
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontFamily:
+                                                              'KellySlab'),
+                                                    ),
+                                                    Text(
+                                                        'Patient Name : ${file['PatName'] == null ? '' : file['PatName']}'),
+                                                    Text(
+                                                        'Radiologist Name : ${file['RadName'] == null ? '' : file['RadName']}')
+                                                  ],
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.01),
+                                              PopupMenuButton<String>(
+                                                icon: Icon(Icons.more_vert),
+                                                itemBuilder: (BuildContext
+                                                        context) =>
+                                                    <PopupMenuEntry<String>>[
+                                                  PopupMenuItem<String>(
+                                                      value: 'View',
+                                                      child: Text('View')),
+                                                  PopupMenuItem<String>(
+                                                      value: 'Share',
+                                                      child: Text('Share')),
+                                                  PopupMenuItem<String>(
+                                                      value: 'Delete',
+                                                      child: Text('Delete'))
+                                                ],
+                                                onSelected: (selected) {
+                                                  if (selected == 'View') {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    FullScreen(
+                                                                      url: file[
+                                                                          'url'],
+                                                                    )));
+                                                  } else if (selected ==
+                                                      'Share') {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                SharingPageRad(
+                                                                  filename: file[
+                                                                      'filename'],
+                                                                  filetype: file[
+                                                                      'filetype'],
+                                                                  note: file[
+                                                                      'content'],
+                                                                  url: file[
+                                                                      'url'],
+                                                                  dicomUrl: file[
+                                                                      'DicomUrl'],
+                                                                  email: email,
+                                                                  phone: phone,
+                                                                  radName: file[
+                                                                      'RadName'],
+                                                                  patName: file[
+                                                                      'PatName'],
+                                                                )));
+                                                  } else if (selected ==
+                                                      'Delete') {
+                                                    Firestore.instance
+                                                        .collection('Files')
+                                                        .document(email)
+                                                        .collection('files')
+                                                        .document(
+                                                            file.documentID)
+                                                        .delete();
+                                                  }
+                                                },
+                                              )
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                }
                               },
                               separatorBuilder: (context, index) {
                                 return SizedBox(
@@ -970,7 +1053,11 @@ class RadFiles extends StatelessWidget {
                               },
                             );
                           }
-                          return Container();
+                          return Container(
+                            child: Center(
+                              child: Text('No Data'),
+                            ),
+                          );
                         })),
               ),
             ],
@@ -979,143 +1066,136 @@ class RadFiles extends StatelessWidget {
         endDrawer: Drawer(
             elevation: 6,
             child: SafeArea(
-              child: FutureBuilder(
-                  future: Firestore.instance
-                      .collection('Users')
-                      .document(email)
-                      .get(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      String email = snapshot.data["Email"];
-                      String name = snapshot.data["Name"];
-                      String phone = snapshot.data["Phone"];
-                      print(email);
-                      print(name);
-                      print(phone);
-                      return Column(
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.02,
-                          ),
-                          CircleAvatar(
-                            radius: 70,
-                            backgroundColor: Colors.transparent,
-                            child: Image(
-                              image: AssetImage('images/avatar.png'),
-                              fit: BoxFit.cover,
+              child: SingleChildScrollView(
+                child: FutureBuilder(
+                    future: Firestore.instance
+                        .collection('Users')
+                        .document(email)
+                        .get(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        String email = snapshot.data["Email"];
+                        radName = snapshot.data["Name"];
+                        String phone = snapshot.data["Phone"];
+                        print(email);
+                        print(radName);
+                        print(phone);
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.02,
                             ),
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.09,
-                          ),
-                          Center(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(
-                                      width: 0.1, color: Colors.black),
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.black54,
-                                        blurRadius: 7,
-                                        spreadRadius: 0)
-                                  ]),
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      labelText: name),
+                            CircleAvatar(
+                              radius: 70,
+                              backgroundColor: Colors.transparent,
+                              child: Image(
+                                image: AssetImage('images/avatar.png'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.09,
+                            ),
+                            Center(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        width: 0.1, color: Colors.black),
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black54,
+                                          blurRadius: 7,
+                                          spreadRadius: 0)
+                                    ]),
+                                width: MediaQuery.of(context).size.width * 0.7,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  child: TextFormField(
+                                    initialValue: radName,
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        labelText: 'Name'),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.04,
-                          ),
-                          Center(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(
-                                      width: 0.1, color: Colors.black),
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.black54,
-                                        blurRadius: 7,
-                                        spreadRadius: 0)
-                                  ]),
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      labelText: email),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.04,
+                            ),
+                            Center(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        width: 0.1, color: Colors.black),
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black54,
+                                          blurRadius: 7,
+                                          spreadRadius: 0)
+                                    ]),
+                                width: MediaQuery.of(context).size.width * 0.7,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  child: TextFormField(
+                                    initialValue: email,
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        labelText: 'Email'),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.05,
-                          ),
-                          Center(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(
-                                      width: 0.1, color: Colors.black),
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.black54,
-                                        blurRadius: 7,
-                                        spreadRadius: 0)
-                                  ]),
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      labelText: phone),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.05,
+                            ),
+                            Center(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        width: 0.1, color: Colors.black),
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black54,
+                                          blurRadius: 7,
+                                          spreadRadius: 0)
+                                    ]),
+                                width: MediaQuery.of(context).size.width * 0.7,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  child: TextFormField(
+                                    initialValue: phone,
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        labelText: 'Phone Number'),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.1,
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            child: FloatingActionButton.extended(
-                              backgroundColor: Colors.blue,
-                              label: Text('log out'),
-                              onPressed: () async {
-                                FirebaseAuth firebaseAuth =
-                                    FirebaseAuth.instance;
-                                FirebaseUser user =
-                                    await firebaseAuth.currentUser();
-                                firebaseAuth.signOut();
-                                if (user == null) {
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              LoginRegister()));
-                                }
-                              },
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.1,
                             ),
-                          )
-                        ],
-                      );
-                    }
-                    return Container();
-                  }),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              child: FloatingActionButton.extended(
+                                backgroundColor: Colors.blue,
+                                label: Text('Log Out'),
+                                onPressed: () async {
+                                  signOut();
+                                },
+                              ),
+                            )
+                          ],
+                        );
+                      }
+                      return Container();
+                    }),
+              ),
             )),
         bottomNavigationBar: BottomAppBar(
           child: Row(
@@ -1142,7 +1222,7 @@ class RadFiles extends StatelessWidget {
                   icon: Icon(
                     Icons.filter,
                     size: 30,
-                    color: Colors.black,
+                    color: Colors.teal,
                   ),
                   onPressed: () {
                     Navigator.push(

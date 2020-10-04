@@ -18,14 +18,16 @@ class FullScreen extends StatelessWidget {
                   BoxShadow(
                       color: Colors.black54, blurRadius: 7, spreadRadius: 0)
                 ]),
-            child: Image(
-              image: url == null
-                  ? CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
-                    )
-                  : NetworkImage(url),
-              alignment: Alignment.center,
-              fit: BoxFit.fitWidth,
+            child: InteractiveViewer(
+              panEnabled: false,
+              boundaryMargin: EdgeInsets.all(10),
+              minScale: 0.5,
+              maxScale: 4,
+              child: Image(
+                image: NetworkImage(url),
+                alignment: Alignment.center,
+                fit: BoxFit.fitWidth,
+              ),
             )),
       ),
     );

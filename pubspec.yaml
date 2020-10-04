@@ -43,6 +43,7 @@ dependencies:
   splashscreen:
   flutter_launcher_icons: ^0.8.0
   google_fonts:
+  
 
 
 flutter_icons:
